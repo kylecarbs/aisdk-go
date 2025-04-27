@@ -742,6 +742,7 @@ func (a *DataStreamAccumulator) Push(part DataStreamPart) error {
 		a.finishReason = p.FinishReason
 		a.currentMessage = nil
 		a.wipToolCalls = nil
+		a.usage = p.Usage
 
 	case ErrorStreamPart:
 		a.finishReason = FinishReasonError

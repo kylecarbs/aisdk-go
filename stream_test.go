@@ -24,8 +24,8 @@ func TestDataStreamAccumulator_SimpleText(t *testing.T) {
 		aisdk.FinishMessageStreamPart{
 			FinishReason: aisdk.FinishReasonStop,
 			Usage: aisdk.Usage{
-				PromptTokens:     nil,
-				CompletionTokens: nil,
+				PromptTokens:     int64Ptr(10),
+				CompletionTokens: int64Ptr(90),
 			},
 		},
 	}
@@ -77,6 +77,9 @@ func TestDataStreamAccumulator_SimpleText(t *testing.T) {
 	if acc.FinishReason() != aisdk.FinishReasonStop {
 		t.Errorf("Expected finish reason %q, got %q", aisdk.FinishReasonStop, acc.FinishReason())
 	}
+
+	require.Equal(t, int64Ptr(10), acc.Usage().PromptTokens)
+	require.Equal(t, int64Ptr(90), acc.Usage().CompletionTokens)
 }
 
 // Helper function to create a pointer to an int64
@@ -135,4 +138,5 @@ func TestDataStreamAccumulator_ToolCall(t *testing.T) {
 
 	messages := acc.Messages()
 	require.EqualExportedValues(t, expectedMessages, messages)
+	require.Equal(t, int64Ptr(90), acc.Usage().CompletionTokens)
 }
