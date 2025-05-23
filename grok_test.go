@@ -1,6 +1,7 @@
 package aisdk_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/hamguy/go_grok/pkg/xai"
@@ -11,17 +12,17 @@ import (
 func TestGrokToDataStream(t *testing.T) {
 	t.Parallel()
 
-	mockResponse := &xai.Response{
-		Choices: []*xai.Choice{
+	mockResponse := &xai.ChatCompletionResponse{
+		Choices: []xai.Choice{
 			{
-				Delta: &xai.Delta{
+				Delta: &xai.Message{
 					Content: "Hello, world!",
 				},
 			},
 		},
 	}
 
-	streamChan := make(chan *xai.Response, 1)
+	streamChan := make(chan *xai.ChatCompletionResponse, 1)
 	streamChan <- mockResponse
 	close(streamChan)
 
@@ -67,19 +68,15 @@ func TestToolsToGrok(t *testing.T) {
 
 	tools := []aisdk.Tool{
 		{
-			Type: "function",
-			Function: aisdk.Function{
-				Name:        "get_weather",
-				Description: "Get the weather for a location",
-				Parameters: map[string]interface{}{
-					"type": "object",
-					"properties": map[string]interface{}{
-						"location": map[string]interface{}{
-							"type":        "string",
-							"description": "The location to get weather for",
-						},
+			Name:        "get_weather",
+			Description: "Get the weather for a location",
+			Schema: aisdk.Schema{
+				Required: []string{"location"},
+				Properties: map[string]interface{}{
+					"location": map[string]interface{}{
+						"type":        "string",
+						"description": "The location to get weather for",
 					},
-					"required": []string{"location"},
 				},
 			},
 		},
@@ -96,7 +93,8 @@ func TestToolsToGrok(t *testing.T) {
 func TestMessagesToGrok_Live(t *testing.T) {
 	t.Parallel()
 
-	if aisdk.GetEnv("GROK_API_KEY") == "" {
+	apiKey := os.Getenv("GROK_API_KEY")
+	if apiKey == "" {
 		t.Skip("GROK_API_KEY is not set")
 	}
 
@@ -115,11 +113,13 @@ func TestMessagesToGrok_Live(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, grokMessages, 2)
 
-	client := xai.NewClient(aisdk.GetEnv("GROK_API_KEY"))
+	client := xai.NewClient(apiKey, "grok-2-1212")
+	
+	streamTrue := true
 	req := &xai.ChatCompletionRequest{
-		Model:    xai.Grok212,
+		Model:    "grok-2-1212",
 		Messages: grokMessages,
-		Stream:   true,
+		Stream:   &streamTrue,
 	}
 
 	streamChan, err := client.CreateChatCompletionStream(req)
