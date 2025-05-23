@@ -9,7 +9,7 @@
 
 A Go implementation of Vercel's AI SDK [Data Stream Protocol](https://sdk.vercel.ai/docs/ai-sdk-ui/stream-protocol#data-stream-example).
 
-- Supports OpenAI, Google, and Anthropic (with Bedrock support)
+- Supports OpenAI, Google, Anthropic (with Bedrock support), and Grok
 - Examples for integrating `useChat`
 - Chain tool usage in Go, just like `maxSteps`
 
@@ -50,6 +50,7 @@ Run tests with `go test`. Start the `useChat` demo with:
 export OPENAI_API_KEY=<api-key>
 export ANTHROPIC_API_KEY=<api-key>
 export GOOGLE_API_KEY=<api-key>
+export GROK_API_KEY=<api-key>
 
 cd demo
 bun i
